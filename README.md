@@ -1,6 +1,7 @@
 # Dock
 
-Dock: the most compatible package manager to exist.
+Dock: the most compatible package manager to exist.<br>
+_see the [specification](spec.md)_
 
 _This is a joke piece of software do not use this_
 ## Features
