@@ -11,7 +11,7 @@ OPTIONAL ARGS:
 -m OR --manager <package manager>
 ```
 
-DOES: searchs for package to verify it exists, creates new container with image, runs package manager
+DOES: searchs for package to verify it exists, creates new container with image, runs package manager<br>
 MISC: adds package to json file to remember what to update/with what manager
 
 >dock search [pkg]
@@ -23,7 +23,7 @@ OPTIONAL ARGS:
 --full, --name-only (passed to package manager)
 ```
 
-DOES: if no search container exists, creates a new one with image, runs <manager> search <args>
+DOES: if no search container exists, creates a new one with image, runs \<manager> search \<args><br>
 MISC: give warning if using a package manager that isn't associated with the image
 
 >dock remove [pkg]
@@ -35,8 +35,18 @@ MISC: removes package from json file
 
 ```
 OPTIONAL ARGS:
--o OR --only <image1,image2,...>
+--only <image1,image2,...>
 ```
 
-DOES: goes through list of images and does package manager update for each (+upgrade)
+DOES: goes through list of images and does package manager update for each (+ upgrade)<br>
 MISC: updates the WHOLE system in each container
+
+>dock list
+
+```
+OPTIONAL ARGS:
+--from-image <image>
+```
+
+DOES: lists all packages in json file
+MISC: can filter by image
