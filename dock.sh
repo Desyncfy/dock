@@ -6,7 +6,6 @@
 manager="apt"
 image="ubuntu:latest"
 
-
 case $1 in
     "install")
         # check if package exists with $manager search
@@ -78,14 +77,16 @@ case $1 in
         if [ -n "$(docker ps -all --filter "name=search-$manager" --format {{.Names}})" ]; then
           echo "Search container for $manager exists."
           docker start search-$manager > /dev/null # start the container quietly
-          if docker exec -i search-$manager apt-cache show "$2" >/dev/null 2>&1; then
+          if docker exec -i search-$manager $manager show "$2" >/dev/null 2>&1; then
             echo "Package $2 exists. Attempting installation"
 
             # wooo now we can actually install the package
             docker run -dit --name $2 $image
             
-            docker exec -i $2 apt-get update
-            docker exec -i $2 apt-get install -y "$2"
+            docker exec -i $2 $manager update
+            docker exec -i $2 $manager install -y "$2"
+            echo "adding \"$2\" to file."
+            echo "$2,$manager,$image" >> ~/.dock/packages.txt
             echo -e "\nPackage \"$2\" installed."
           else
             echo -e "\nE: Package $2 does not exist."
@@ -94,7 +95,7 @@ case $1 in
 
         else
           docker run -dit --name search-$manager $image
-          docker exec -i search-$manager apt-get update
+          docker exec -i search-$manager $manager update
           echo "Creating new search container \"search-$manager\""
         fi
         ;;
@@ -108,6 +109,8 @@ case $1 in
         if [ -n "$(docker ps -all --filter "name=$2" --format {{.Names}})" ]; then
           echo "Container $2 exists. Attempting removal"
           docker rm -f $2 > /dev/null
+          echo "removing \"$2\" from file."
+          sed -i "/$2/d" ~/.dock/packages.txt
           echo -e "\nPackage \"$2\" removed."
         else
           echo -e "\nE: Package $2 does not exist."
@@ -115,13 +118,56 @@ case $1 in
         fi
         ;;
     "update")
-        echo "Update"
+        if [ "$2" = "--only" ]; then
+          if [ -n "$3" ]; then
+            echo "Checking if $3 is a valid package"
+            if [ -n "$(docker ps -all --filter "name=$3" --format {{.Names}})" ]; then
+              echo "Container $3 exists. Attempting update"
+              docker start $3
+              docker exec -i $3 $manager update 
+              docker exec -i $3 $manager upgrade -y
+              echo -e "\nPackage \"$3\" updated."
+            fi
+          else
+            echo "Usage: dock update --only <package>"
+            exit 1
+          fi
+        fi
+
+        # honestly not really sure what's going on but maybe this'll work
+        for i in $(cat ~/.dock/packages.txt); do 
+          IFS=',' read -ra tokens <<< "$i"
+          count=0
+          for token in "${tokens[@]}"; do 
+            count=$((count+1))
+            if [ $count == 1 ]; then
+              docker start $token > /dev/null
+              docker exec -i $token $manager update 
+              docker exec -i $token $manager upgrade -y
+              echo -e "\nPackage \"$token\" updated."
+            fi
+          done
+        done
         ;;
     "list")
-        echo "List"
+        cat ~/.dock/packages.txt
         ;;
     "search")
-        echo "Results"
+        if [ "$2" = "--image" ]; then
+          if [ -n "$3" ]; then
+            if [ -n "$(docker ps -all --filter "name=search-$manager" --format {{.Names}})" ]; then
+            docker start search-$manager > /dev/null
+            docker exec -i search-$manager $manager search "$3"
+          else
+            docker run -dit --name search-$manager $image
+            docker exec -i search-$manager $manager update
+            docker exec -i search-$manager $manager search "$3"
+          fi
+          else
+            echo "Usage: dock search --image <image>"
+            exit 1
+          fi
+        fi
         ;;
     *)
         echo "Usage: dock [command] [args] <options>"

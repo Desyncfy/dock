@@ -14,8 +14,9 @@ _This is a joke piece of software do not use this_
 ## Progress
 
 - [ ] Allow running container programs outside of docker
+- [x] Save items to file
 - [x] dock install
 - [x] dock remove
-- [ ] dock update
-- [ ] dock list
-- [ ] dock search
+- [x] dock update
+- [x] dock list
+- [x] dock search
