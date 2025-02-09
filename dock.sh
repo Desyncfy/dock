@@ -75,11 +75,27 @@ case $1 in
         # HERE: check if a container named "search-$manager" exists
         # if it does, then use that container otherwise create a new one
   
-        if [ "$(docker ps --filter 'name=search-$manager' --format {{.Names}})" ]; then
-          echo "Container exists"
+        if [ -n "$(docker ps -all --filter "name=search-$manager" --format {{.Names}})" ]; then
+          echo "Search container for $manager exists."
+          docker start search-$manager > /dev/null # start the container quietly
+          if docker exec -i search-$manager apt-cache show "$2" >/dev/null 2>&1; then
+            echo "Package $2 exists. Attempting installation"
+
+            # wooo now we can actually install the package
+            docker run -dit --name $2 $image
+            
+            docker exec -i $2 apt-get update
+            docker exec -i $2 apt-get install -y "$2"
+            echo -e "\nPackage \"$2\" installed."
+          else
+            echo -e "\nE: Package $2 does not exist."
+            exit 1
+          fi
+
         else
-          docker run --name search-$manager $image
-          echo "blamo"
+          docker run -dit --name search-$manager $image
+          docker exec -i search-$manager apt-get update
+          echo "Creating new search container \"search-$manager\""
         fi
         ;;
     "remove")
