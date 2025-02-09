@@ -161,7 +161,7 @@ docker exec -it $2 $2 \$@ # theoretically \$@ passes args to the container""" > 
         cat ~/.dock/packages.txt
         ;;
     "search")
-        if [ "$2" = "--image" ]; then
+        if [ "$2" = "--manager" ]; then
           if [ -n "$3" ]; then
             if [ -n "$(docker ps -all --filter "name=search-$manager" --format {{.Names}})" ]; then
             docker start search-$manager > /dev/null
@@ -190,7 +190,8 @@ docker exec -it $2 $2 \$@ # theoretically \$@ passes args to the container""" > 
         echo "  search         search for software with a specified name"
         echo ""
         echo "Options:"
-        echo "  --manager      specify a package manager (only for install & remove)"
-        echo "  --image        specify a container image (only for install, remove, & update)"
+        echo "  --manager      specify a package manager (only for install, remove, & search)"
+        echo "  --image        specify a container image (only for install & remove)"
+        echo "  --only         only update one container (only for update)"
         ;;
 esac
