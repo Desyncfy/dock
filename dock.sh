@@ -87,7 +87,15 @@ case $1 in
             docker exec -i $2 $manager install -y "$2"
             echo "adding \"$2\" to file."
             echo "$2,$manager,$image" >> ~/.dock/packages.txt
-            echo -e "\nPackage \"$2\" installed."
+            echo -e "\nPackage \"$2\" installed.\n"
+            echo "Adding \"$2\" to path."
+            echo """#!/bin/sh
+if [ -z "$(docker ps -q -f name=$2)" ]; then
+  echo "W: Container \"$2\" not running. Starting $2..."
+  docker start $2 > /dev/null
+fi
+docker exec -it $2 $2 \$@ # theoretically \$@ passes args to the container""" > ~/.dock/programs/$2
+            chmod +x ~/.dock/programs/$2
           else
             echo -e "\nE: Package $2 does not exist."
             exit 1
