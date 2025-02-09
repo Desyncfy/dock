@@ -104,6 +104,15 @@ case $1 in
           echo "Usage: dock remove <package>"
           exit 1
         fi
+        echo "Checking if $2 is a valid package"
+        if [ -n "$(docker ps -all --filter "name=$2" --format {{.Names}})" ]; then
+          echo "Container $2 exists. Attempting removal"
+          docker rm -f $2 > /dev/null
+          echo -e "\nPackage \"$2\" removed."
+        else
+          echo -e "\nE: Package $2 does not exist."
+          exit 1
+        fi
         ;;
     "update")
         echo "Update"
