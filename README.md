@@ -19,7 +19,7 @@ _This is a joke piece of software do not use this_
 - [x] dock remove
 - [x] dock update
 - [x] dock list
-- [x] dock search
+- [ ] dock search
 - [ ] file system integration
 - [ ] better support for multiple package managers
 

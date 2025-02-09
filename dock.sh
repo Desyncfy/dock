@@ -161,21 +161,7 @@ docker exec -it $2 $2 \$@ # theoretically \$@ passes args to the container""" > 
         cat ~/.dock/packages.txt
         ;;
     "search")
-        if [ "$2" = "--manager" ]; then
-          if [ -n "$3" ]; then
-            if [ -n "$(docker ps -all --filter "name=search-$manager" --format {{.Names}})" ]; then
-            docker start search-$manager > /dev/null
-            docker exec -i search-$manager $manager search "$3"
-          else
-            docker run -dit --name search-$manager $image
-            docker exec -i search-$manager $manager update
-            docker exec -i search-$manager $manager search "$3"
-          fi
-          else
-            echo "Usage: dock search --image <image>"
-            exit 1
-          fi
-        fi
+        echo "E: Not implemented"
         ;;
     *)
         echo "Usage: dock [command] [args] <options>"
