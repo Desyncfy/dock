@@ -19,3 +19,4 @@ _This is a joke piece of software do not use this_
 - [ ] dock remove
 - [ ] dock update
 - [ ] dock list
+- [ ] dock search
